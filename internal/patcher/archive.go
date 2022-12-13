@@ -21,20 +21,6 @@ func extractDiscord(discordPath *string) {
 	log.Println(*discordPath, "extracted")
 }
 
-// Extract Enmity's icons
-func extractIcons(iconsPath *string) {
-	log.Println("extracting", *iconsPath)
-
-	format := archiver.Zip{}
-
-	err := format.Unarchive(*iconsPath, "Payload/Discord.app/")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	log.Println(*iconsPath, "extracted")
-}
-
 // Pack Discord's IPA
 func packDiscord() {
 	log.Println("packing discord")
