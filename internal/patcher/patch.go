@@ -10,12 +10,10 @@ import (
 
 const (
 	DEFAULT_IPA_PATH    = "files/Discord.ipa"
-	DEFAULT_ICONS_PATH  = "files/icons.zip"
 )
 
 const (
 	IPA_URL    = "https://github.com/enmity-mod/tweak/blob/main/Discord.ipa?raw=true"
-	ICONS_URL  = "https://files.enmity.app/icons.zip"
 )
 
 func PatchDiscord(discordPath *string, iconsPath *string, dylibPath *string) {
@@ -25,12 +23,6 @@ func PatchDiscord(discordPath *string, iconsPath *string, dylibPath *string) {
 	checkFile(iconsPath, DEFAULT_ICONS_PATH, ICONS_URL)
 
 	extractDiscord(discordPath)
-
-	log.Println("renaming Discord to Enmity")
-	if err := patchName(); err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("Discord renamed")
 
 	log.Println("adding Enmity url scheme")
 	if err := patchSchemes(); err != nil {
@@ -43,13 +35,6 @@ func PatchDiscord(discordPath *string, iconsPath *string, dylibPath *string) {
 		log.Fatalln(err)
 	}
 	log.Println("device whitelist removed")
-
-	log.Println("patch Discord icons")
-	extractIcons(iconsPath)
-	if err := patchIcon(); err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("icons patched")
 
 	log.Println("showing Discord's document folder in the Files app and Finder/iTunes")
 	if err := patchiTunesAndFiles(); err != nil {
@@ -117,20 +102,6 @@ func savePlist(info *map[string]interface{}) error {
 	return err
 }
 
-// Patch Discord's name
-func patchName() error {
-	info, err := loadPlist()
-	if err != nil {
-		return err
-	}
-
-	info["CFBundleName"] = "Enmity"
-	info["CFBundleDisplayName"] = "Enmity"
-
-	err = savePlist(&info)
-	return err
-}
-
 // Patch Discord's URL scheme to add Enmity's URL handler
 func patchSchemes() error {
 	info, err := loadPlist()
@@ -160,23 +131,6 @@ func patchDevices() error {
 	}
 
 	delete(info, "UISupportedDevices")
-
-	err = savePlist(&info)
-	return err
-}
-
-// Patch the Discord icon to use Enmity's icon
-func patchIcon() error {
-	info, err := loadPlist()
-	if err != nil {
-		return err
-	}
-
-	info["CFBundleIcons"].(map[string]interface{})["CFBundlePrimaryIcon"].(map[string]interface{})["CFBundleIconName"] = "EnmityIcon"
-	info["CFBundleIcons"].(map[string]interface{})["CFBundlePrimaryIcon"].(map[string]interface{})["CFBundleIconFiles"] = []string{"EnmityIcon60x60"}
-
-	info["CFBundleIcons~ipad"].(map[string]interface{})["CFBundlePrimaryIcon"].(map[string]interface{})["CFBundleIconName"] = "EnmityIcon"
-	info["CFBundleIcons~ipad"].(map[string]interface{})["CFBundlePrimaryIcon"].(map[string]interface{})["CFBundleIconFiles"] = []string{"EnmityIcon60x60", "EnmityIcon76x76"}
 
 	err = savePlist(&info)
 	return err
